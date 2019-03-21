@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User index{% endblock %}
+
+{% block stylesheets %}
+
+{% endblock %}
+
+{% block body %}
+
+    <div class="col-md-7">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Exercise Add</h3>
+            </div>
+            <!-- /.box-header -->
+            <!-- form start -->
+            <form role="form" id="exercise-add-form" method="POST" action="{{ path('exercise_add_post') }}">
+                <div class="box-body">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" class="form-control" id="name" name="name"
+                               placeholder="Enter name" required>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript">
+        $(function () {
+
+            $("#exercise-add-form").submit(function (e) {
+
+                //prevent Default functionality
+                e.preventDefault();
+
+                //get the action-url of the form
+                var actionurl = e.currentTarget.action;
+
+                //do your own request an handle the results
+                $.ajax({
+                    url: actionurl,
+                    type: 'post',
+                    dataType: 'json',
+                    data: $("#exercise-add-form").serialize(),
+                    success: function (data) {
+                        if (data.status) {
+                            iziToast.success({
+                                title: 'OK',
+                                message: data.message
+                            });
+                            window.location = "{{ path('exercise_list') }}"
+                        } else {
+                            iziToast.error({
+                                title: 'ERROR',
+                                message: data.message
+                            });
+                        }
+                    },
+                    error: function (jqXhr, textStatus, errorMessage) {
+                        console.log(errorMessage);
+                        iziToast.error({
+                            title: 'ERROR',
+                            message: errorMessage
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

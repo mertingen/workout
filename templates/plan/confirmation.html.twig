@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User index{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('bower_components/select2/dist/css/select2.min.css') }}"
+          type="text/css">
+{% endblock %}
+
+{% block body %}
+    <div class="col-xs-12">
+        {% if(data.status) %}
+
+            <div class="alert alert-success alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-check"></i> Confirmed!</h4>
+                You've have confirmed your plan successfully.
+            </div>
+
+        {% elseif(data.isAlreadyConfirmed) %}
+            <div class="alert alert-warning alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-warning"></i> Already confirmed! </h4>
+                You have already confirmed this plan.
+            </div>
+        {% else %}
+            <div class="alert alert-danger alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <h4><i class="icon fa fa-ban"></i> Couldn't confirmed! </h4>
+                You couldn't confirmed you plan.
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('bower_components/select2/dist/js/select2.full.min.js') }}" type="text/javascript"></script>
+    <script type="text/javascript"
+            src="{{ asset('plugins/lodash/lodash.js') }}"></script>
+    <script type="text/javascript">
+        $(function () {
+
+        });
+    </script>
+{% endblock %}

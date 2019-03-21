@@ -1,0 +1,263 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Plan index{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('bower_components/select2/dist/css/select2.min.css') }}"
+          type="text/css">
+{% endblock %}
+
+{% block body %}
+
+
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">Plan Day List</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <table id="plan-day-data-table" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Order</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Name</th>
+                        <th>Order</th>
+                        <th>Actions</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-edit">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Edit Plan</h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form" id="plan-day-edit-form" method="POST">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label>Plan</label>
+                                <select id="plan" name="plan" data-placeholder="Select plan" class="form-control select2" style="width: 100%;" required>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" class="form-control" id="name" name="name"
+                                       placeholder="Enter name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Order</label>
+                                <select class="form-control" name="order" id="order" required>
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                    <option>6</option>
+                                    <option>7</option>
+                                    <option>8</option>
+                                    <option>9</option>
+                                    <option>10</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- /.box-body -->
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="button" id="modal-edit-button" class="btn btn-primary">Edit</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+
+    <div class="modal fade" id="modal-remove">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Remove Plan Day</h4>
+                </div>
+                <div class="modal-body">
+                    <span>Are sure removing this plan day?</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="button" id="modal-remove-button" class="btn btn-primary">Remove</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript"
+            src="{{ asset('bower_components/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ asset('bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ asset('plugins/lodash/lodash.js') }}"></script>
+    <script src="{{ asset('bower_components/select2/dist/js/select2.full.min.js') }}" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $(".select2").select2();
+
+            var plansGetUrl = "{{ path('plan_get_all') }}";
+            $.get(plansGetUrl, function (data, status) {
+                _.each(data.data, function (value, key) {
+                    var option = '<option value="' + value.id + '">' + value.name + '</option>';
+                    $('#plan').append(option);
+                });
+            });
+
+            $('#plan-day-data-table').DataTable({
+                'paging': true,
+                'responsive': true,
+                'lengthChange': false,
+                'searching': false,
+                'ordering': true,
+                'info': true,
+                'autoWidth': false,
+                'columns': [
+                    {"data": "name"},
+                    {"data": "order"},
+                    {"data": "actions"}
+                ],
+                "ajax": {
+                    "url": "{{ path('plan_day_get_all') }}",
+                    "dataSrc": function (json) {
+
+                        var claimedData = [];
+                        _.each(json.data, function (value, key) {
+                            var action = '<button type="button" data-toggle="modal" data-target="#modal-edit" data-plan-day-id="' + value.id + '" class="btn btn-default bg-blue edit-button"><i class="fa fa-edit"></i></button><button type="button" data-toggle="modal" data-target="#modal-remove" data-plan-day-id="' + value.id + '" style="margin-left: 4px;" class="btn btn-default bg-red remove-button"><i class="fa fa-remove"></i></button>';
+                            var plan = {
+                                "name": '<span id="' + value.id + 'name">' + value.name + '</span>',
+                                "order": '<span id="' + value.id + 'order">' + value.planDayOrder + '</span>',
+                                "actions": action
+                            };
+                            claimedData.push(plan);
+                        });
+
+                        // return the data that DataTables is to use to draw the table
+                        return claimedData;
+                    }
+                }
+            });
+
+            $('body').on('click', '.edit-button', function () {
+                var planDayGetUrl = '/api/plan-day/get/' + $(this).data('plan-day-id');
+                $.get(planDayGetUrl, function (data, status) {
+                    $('#name').val(data.data.name);
+                    $('#order').val(data.data.planDayOrder);
+                    $('#plan').val(data.data.plan.id).trigger('change');
+
+                    $('#modal-edit-button').attr('data-plan-day-id', data.data.id);
+                    $('#modal-edit').modal('show');
+                });
+            });
+
+            $('#modal-edit-button').on('click', function () {
+                var planDayEditUrl = '/api/plan-day/edit/' + $(this).data('plan-day-id');
+
+                $.ajax({
+                    url: planDayEditUrl,
+                    type: 'post',
+                    dataType: 'json',
+                    data: $("#plan-day-edit-form").serialize(),
+                    success: function (data) {
+                        if (data.status) {
+                            $('#' + data.data.id + 'name').text(data.data.name);
+                            $('#' + data.data.id + 'order').text(data.data.planDayOrder);
+                            $('#modal-edit').modal('hide');
+                            iziToast.success({
+                                title: 'OK',
+                                message: data.message
+                            });
+                        } else {
+                            iziToast.error({
+                                title: 'ERROR',
+                                message: data.message
+                            });
+                        }
+
+                    },
+                    error: function (jqXhr, textStatus, errorMessage) {
+                        iziToast.error({
+                            title: 'ERROR',
+                            message: errorMessage
+                        });
+                    }
+                });
+            });
+
+
+            $('body').on('click', '.remove-button', function () {
+                var planDayGetUrl = '/api/plan-day/get/' + $(this).data('plan-day-id');
+                $.get(planDayGetUrl, function (data, status) {
+                    $('#modal-remove-button').attr('data-plan-day-id', data.data.id);
+                    $('#modal-remove-button').attr('data-row', data.data.id);
+                    $('#modal-remove').modal('show');
+                });
+            });
+
+
+            $('#modal-remove-button').on('click', function () {
+                var planId = $(this).data('plan-day-id');
+                var planDayRemoveUrl = '/api/plan-day/remove/' + planId;
+                $.ajax({
+                    url: planDayRemoveUrl,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.status) {
+                            $('#modal-remove').modal('hide');
+                            $("button[data-plan-day-id='" + planId + "']").parent().parent().remove();
+                            iziToast.success({
+                                title: 'OK',
+                                message: data.message
+                            });
+                        } else {
+                            iziToast.error({
+                                title: 'ERROR',
+                                message: data.message
+                            });
+                        }
+                    },
+                    error: function (jqXhr, textStatus, errorMessage) {
+                        iziToast.error({
+                            title: 'ERROR',
+                            message: errorMessage
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

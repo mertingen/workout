@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+
+{% endblock %}
+
+{% block body %}
+
+    <div class="col-md-12">
+        <!-- USERS LIST -->
+        <div class="box box-danger">
+            <div class="box-header with-border">
+                <h3 class="box-title">Workout Members</h3>
+
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body no-padding">
+                <ul class="users-list clearfix">
+                    {% if users is not empty %}
+                        {% for user in users %}
+
+                            <li>
+                                <a class="users-list-name" href="{{ path('user-detail', {id:user.id}) }}">
+                                    <img src="{{ user.image }}" alt="User Image">
+                                    <a href="{{ path('user-detail', {id:user.id}) }}">{{ user.firstName ~ ' ' ~ user.lastName }}</a>
+                                    <span class="users-list-date">Active</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <span style="margin-left: 45%;"><b>User is not found!</b></span>
+                    {% endif %}
+                </ul>
+                <!-- /.users-list -->
+            </div>
+            <!-- /.box-footer -->
+        </div>
+        <!--/.box -->
+    </div>
+    <!-- /.col -->
+
+    <div class="col-lg-3 col-xs-6">
+        <!-- small box -->
+        <div class="small-box bg-green">
+            <div class="inner">
+                <h3>{{ userCount }}</h3>
+
+                <p>Users</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-android-person"></i>
+            </div>
+            <a href="{{ path('user_list') }}" class="small-box-footer">More info <i
+                        class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-xs-6">
+        <!-- small box -->
+        <div class="small-box bg-blue">
+            <div class="inner">
+                <h3>{{ planCount }}</h3>
+
+                <p>Plan</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-android-locate"></i>
+            </div>
+            <a href="{{ path('plan_list') }}" class="small-box-footer">More info <i
+                        class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-xs-6">
+        <!-- small box -->
+        <div class="small-box bg-red">
+            <div class="inner">
+                <h3>{{ planCount }}</h3>
+
+                <p>Exercise</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-android-bicycle"></i>
+            </div>
+            <a href="{{ path('exercise_list') }}" class="small-box-footer">More info <i
+                        class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-xs-6">
+        <!-- small box -->
+        <div class="small-box bg-yellow">
+            <div class="inner">
+                <h3>{{ exerciseInstanceCount }}</h3>
+
+                <p>Exercise Instance</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-pie-chart"></i>
+            </div>
+            <a href="{{ path('exercise_instance_list') }}" class="small-box-footer">More info <i
+                        class="fa fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript">
+        $(function () {
+
+        });
+    </script>
+{% endblock %}

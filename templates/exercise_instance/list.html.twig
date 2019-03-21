@@ -1,0 +1,277 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Exercise Instance index{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('bower_components/select2/dist/css/select2.min.css') }}"
+          type="text/css">
+{% endblock %}
+
+{% block body %}
+
+
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">Exercise Instance List</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <table id="exercise-instance-data-table" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>Duration</th>
+                        <th>Order</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Duration</th>
+                        <th>Order</th>
+                        <th>Actions</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-edit">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Edit Exercise Instance</h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form" id="exercise-instance-edit-form" method="POST"
+                          action="{{ path('exercise_instance_add_post') }}">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label>Exercise</label>
+                                <select id="exercise" name="exercise" class="form-control select2" style="width: 100%;" required>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Plan Day</label>
+                                <select id="plan-day" name="plan-day" class="form-control select2" style="width: 100%;" required>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Duration</label>
+                                <input type="number" class="form-control" id="duration" name="duration"
+                                       placeholder="Enter duration" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Order</label>
+                                <select class="form-control" name="order" id="order" required>
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                    <option>6</option>
+                                    <option>7</option>
+                                    <option>8</option>
+                                    <option>9</option>
+                                    <option>10</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="button" id="modal-edit-button" class="btn btn-primary">Edit</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+
+    <div class="modal fade" id="modal-remove">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Remove Exercise Instance</h4>
+                </div>
+                <div class="modal-body">
+                    <span>Are sure removing this exercise instance?</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="button" id="modal-remove-button" class="btn btn-primary">Remove</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript"
+            src="{{ asset('bower_components/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ asset('bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ asset('plugins/lodash/lodash.js') }}"></script>
+    <script src="{{ asset('bower_components/select2/dist/js/select2.full.min.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $(".select2").select2();
+
+            var exercisesGetUrl = "{{ path('exercise_get_all') }}";
+            $.get(exercisesGetUrl, function (data, status) {
+                _.each(data.data, function (value, key) {
+                    var option = '<option value="' + value.id + '">' + value.name + '</option>';
+                    $('#exercise').append(option);
+                });
+            });
+
+            var planDaysGetUrl = "{{ path('plan_day_get_all') }}";
+            $.get(planDaysGetUrl, function (data, status) {
+                _.each(data.data, function (value, key) {
+                    var option = '<option value="' + value.id + '">' + value.name + '</option>';
+                    $('#plan-day').append(option);
+                });
+            });
+
+            $('#exercise-instance-data-table').DataTable({
+                'paging': true,
+                'responsive': true,
+                'lengthChange': false,
+                'searching': false,
+                'ordering': true,
+                'info': true,
+                'autoWidth': false,
+                'columns': [
+                    {"data": "duration"},
+                    {"data": "order"},
+                    {"data": "actions"}
+                ],
+                "ajax": {
+                    "url": "{{ path('exercise_instance_get_all') }}",
+                    "dataSrc": function (json) {
+
+                        var claimedData = [];
+                        _.each(json.data, function (value, key) {
+                            var action = '<button type="button" data-toggle="modal" data-target="#modal-edit" data-exercise-instance-id="' + value.id + '" class="btn btn-default bg-blue edit-button"><i class="fa fa-edit"></i></button><button type="button" data-toggle="modal" data-target="#modal-remove" data-exercise-instance-id="' + value.id + '" style="margin-left: 4px;" class="btn btn-default bg-red remove-button"><i class="fa fa-remove"></i></button>';
+                            var exerciseInstance = {
+                                "duration": '<span id="' + value.id + 'duration">' + value.duration + '</span>',
+                                "order": '<span id="' + value.id + 'order">' + value.instanceOrder + '</span>',
+                                "actions": action
+                            };
+                            claimedData.push(exerciseInstance);
+                        });
+
+                        // return the data that DataTables is to use to draw the table
+                        return claimedData;
+                    }
+                }
+            });
+
+            $('body').on('click', '.edit-button', function () {
+                var exerciseInstanceGetUrl = '/api/exercise-instance/get/' + $(this).data('exercise-instance-id');
+                $.get(exerciseInstanceGetUrl, function (data, status) {
+                    $('#duration').val(data.data.duration);
+                    $('#order').val(data.data.instanceOrder);
+                    $('#exercise').val(data.data.exercise.id).trigger('change');
+                    $('#plan-day').val(data.data.planDay.id).trigger('change');
+
+                    $('#modal-edit-button').attr('data-exercise-instance-id', data.data.id);
+                    $('#modal-edit').modal('show');
+                });
+            });
+
+            $('#modal-edit-button').on('click', function () {
+                var exerciseInstanceEditUrl = '/api/exercise-instance/edit/' + $(this).data('exercise-instance-id');
+
+                $.ajax({
+                    url: exerciseInstanceEditUrl,
+                    type: 'post',
+                    dataType: 'json',
+                    data: $("#exercise-instance-edit-form").serialize(),
+                    success: function (data) {
+                        if (data.status) {
+                            $('#' + data.data.id + 'duration').text(data.data.duration);
+                            $('#' + data.data.id + 'order').text(data.data.instanceOrder);
+                            $('#modal-edit').modal('hide');
+                            iziToast.success({
+                                title: 'OK',
+                                message: data.message
+                            });
+                        } else {
+                            iziToast.error({
+                                title: 'ERROR',
+                                message: data.message
+                            });
+                        }
+
+                    },
+                    error: function (jqXhr, textStatus, errorMessage) {
+                        iziToast.error({
+                            title: 'ERROR',
+                            message: errorMessage
+                        });
+                    }
+                });
+            });
+
+
+            $('body').on('click', '.remove-button', function () {
+                var exerciseInstanceGetUrl = '/api/exercise-instance/get/' + $(this).data('exercise-instance-id');
+                console.log(exerciseInstanceGetUrl);
+                $.get(exerciseInstanceGetUrl, function (data, status) {
+                    $('#modal-remove-button').attr('data-exercise-instance-id', data.data.id);
+                    $('#modal-remove-button').attr('data-row', data.data.id);
+                    $('#modal-remove').modal('show');
+                });
+            });
+
+
+            $('#modal-remove-button').on('click', function () {
+                var exerciseInstanceId = $(this).data('exercise-instance-id');
+                var exerciseInstanceRemoveUrl = '/api/exercise-instance/remove/' + exerciseInstanceId;
+                $.ajax({
+                    url: exerciseInstanceRemoveUrl,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.status) {
+                            $('#modal-remove').modal('hide');
+                            $("button[data-exercise-instance-id='" + exerciseInstanceId + "']").parent().parent().remove();
+                            iziToast.success({
+                                title: 'OK',
+                                message: data.message
+                            });
+                        } else {
+                            iziToast.error({
+                                title: 'ERROR',
+                                message: data.message
+                            });
+                        }
+                    },
+                    error: function (jqXhr, textStatus, errorMessage) {
+                        iziToast.error({
+                            title: 'ERROR',
+                            message: errorMessage
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

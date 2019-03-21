@@ -1,0 +1,286 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User index{% endblock %}
+
+{% block body %}
+
+
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">User List</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <table id="user-data-table" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>Fullname</th>
+                        <th>E-mail</th>
+                        <th>Phone</th>
+                        <th>Birth Day</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Fullname</th>
+                        <th>E-mail</th>
+                        <th>Phone</th>
+                        <th>Birth Day</th>
+                        <th>Actions</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-edit">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Edit User</h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form" id="user-edit-form" method="POST">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" class="form-control" id="first-name" name="first-name"
+                                       placeholder="Enter first name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" class="form-control" id="last-name" name="last-name"
+                                       placeholder="Enter last name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>E-mail</label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       placeholder="Enter email" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="text" class="form-control" name="phone" id="phone"
+                                       data-inputmask='"mask": "999-999-9999"' data-mask
+                                       placeholder="Enter phone number" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Order</label>
+                                <select class="form-control" name="gender" required>
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Birth Day</label>
+                                <input type="text" class="form-control pull-right" id="birth-day" name="birth-day"
+                                       autocomplete="off" required>
+                                <!-- /.input group -->
+                            </div>
+                        </div>
+                        <!-- /.box-body -->
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="button" id="modal-edit-button" class="btn btn-primary">Edit</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+
+    <div class="modal fade" id="modal-remove">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Remove User</h4>
+                </div>
+                <div class="modal-body">
+                    <span>Are sure removing this user?</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="button" id="modal-remove-button" class="btn btn-primary">Remove</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript"
+            src="{{ asset('bower_components/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ asset('bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ asset('plugins/lodash/lodash.js') }}"></script>
+
+    <script type="text/javascript" src="{{ asset('bower_components/moment/min/moment.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ asset('bower_components/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ asset('bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('plugins/input-mask/jquery.inputmask.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('plugins/input-mask/jquery.inputmask.date.extensions.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('plugins/input-mask/jquery.inputmask.extensions.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('[data-mask]').inputmask();
+
+            $('#birth-day').datepicker({
+                autoclose: true
+            });
+
+            $('#user-data-table').DataTable({
+                'paging': true,
+                'responsive': true,
+                'lengthChange': false,
+                'searching': false,
+                'ordering': true,
+                'info': true,
+                'autoWidth': false,
+                'columns': [
+                    {"data": "fullName"},
+                    {"data": "email"},
+                    {"data": "gender"},
+                    {"data": "phone"},
+                    {"data": "birthDay"},
+                    {"data": "actions"}
+                ],
+                "ajax": {
+                    "url": "{{ path('user_get_all') }}",
+                    "dataSrc": function (json) {
+
+                        var claimedData = [];
+                        _.each(json.data, function (value, key) {
+                            var action = '<button type="button" data-toggle="modal" data-target="#modal-edit" data-user-id="' + value.id + '" class="btn btn-default bg-blue edit-button"><i class="fa fa-edit"></i></button><button type="button" data-toggle="modal" data-target="#modal-remove" data-user-id="' + value.id + '" style="margin-left: 4px;" class="btn btn-default bg-red remove-button"><i class="fa fa-remove"></i></button>';
+                            var user = {
+                                "fullName": '<span id="' + value.id + 'fullName">' + value.fullName + '</span>',
+                                "email": '<span id="' + value.id + 'email">' + value.email + '</span>',
+                                "gender": '<span id="' + value.id + 'gender">' + value.gender + '</span>',
+                                "phone": '<span id="' + value.id + 'phone">' + value.phone + '</span>',
+                                "birthDay": '<span id="' + value.id + 'birthDay">' + value.birthDay + '</span>',
+                                "actions": action
+                            };
+                            claimedData.push(user);
+                        });
+
+                        // return the data that DataTables is to use to draw the table
+                        return claimedData;
+                    }
+                }
+            });
+
+            $('body').on('click', '.edit-button', function () {
+                var userGetUrl = '/api/user/get/' + $(this).data('user-id');
+                $.get(userGetUrl, function (data, status) {
+                    $('#first-name').val(data.data.firstName);
+                    $('#last-name').val(data.data.lastName);
+                    $('#email').val(data.data.email);
+                    $('#gender').val(data.data.gender);
+                    $('#phone').val(data.data.phone);
+                    $('#birth-day').val(data.data.birthDay);
+
+                    $('#modal-edit-button').attr('data-user-id', data.data.id);
+                    $('#modal-edit').modal('show');
+                });
+            });
+
+            $('#modal-edit-button').on('click', function () {
+                var userEditUrl = '/api/user/edit/' + $(this).data('user-id');
+
+                $.ajax({
+                    url: userEditUrl,
+                    type: 'post',
+                    dataType: 'json',
+                    data: $("#user-edit-form").serialize(),
+                    success: function (data) {
+                        if (data.status) {
+                            $('#' + data.data.id + 'fullName').text(data.data.fullName);
+                            $('#' + data.data.id + 'gender').text(data.data.gender);
+                            $('#' + data.data.id + 'email').text(data.data.email);
+                            $('#' + data.data.id + 'phone').text(data.data.phone);
+                            $('#' + data.data.id + 'birthDay').text(data.data.birthDay);
+                            $('#modal-edit').modal('hide');
+                            iziToast.success({
+                                title: 'OK',
+                                message: data.message
+                            });
+                        } else {
+                            iziToast.error({
+                                title: 'ERROR',
+                                message: data.message
+                            });
+                        }
+
+                    },
+                    error: function (jqXhr, textStatus, errorMessage) {
+                        iziToast.error({
+                            title: 'ERROR',
+                            message: errorMessage
+                        });
+                    }
+                });
+            });
+
+
+            $('body').on('click', '.remove-button', function () {
+                var userGetUrl = '/api/user/get/' + $(this).data('user-id');
+                $.get(userGetUrl, function (data, status) {
+                    $('#modal-remove-button').attr('data-user-id', data.data.id);
+                    $('#modal-remove-button').attr('data-row', data.data.id);
+                    $('#modal-remove').modal('show');
+                });
+            });
+
+
+            $('#modal-remove-button').on('click', function () {
+                var userId = $(this).data('user-id');
+                var userRemoveUrl = '/api/user/remove/' + userId;
+                $.ajax({
+                    url: userRemoveUrl,
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.status) {
+                            $('#modal-remove').modal('hide');
+                            $("button[data-user-id='" + userId + "']").parent().parent().remove();
+                            iziToast.success({
+                                title: 'OK',
+                                message: data.message
+                            });
+                        } else {
+                            iziToast.error({
+                                title: 'ERROR',
+                                message: data.message
+                            });
+                        }
+                    },
+                    error: function (jqXhr, textStatus, errorMessage) {
+                        iziToast.error({
+                            title: 'ERROR',
+                            message: errorMessage
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

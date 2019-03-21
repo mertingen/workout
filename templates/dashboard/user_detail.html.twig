@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Exercise index{% endblock %}
+
+{% block body %}
+
+
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">{{ user.firstName ~ " " ~ user.lastName }} Plan List</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <table id="exercise-data-table" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for userPlan in user.userPlans %}
+                    <tr>
+                        <td>{{ userPlan.plan.name }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>Name</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <!-- /.box-body -->
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="modal-remove">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Remove Exercise</h4>
+                </div>
+                <div class="modal-body">
+                    <span>Are sure removing this exercise?</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="button" id="modal-remove-button" class="btn btn-primary">Remove</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+{% endblock %}
+
+    {% block javascripts %}
+        <script type="text/javascript"
+                src="{{ asset('bower_components/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+        <script type="text/javascript"
+                src="{{ asset('bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+        <script type="text/javascript"
+                src="{{ asset('plugins/lodash/lodash.js') }}"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+
+                $('#exercise-data-table').DataTable();
+
+
+            });
+        </script>
+    {% endblock %}

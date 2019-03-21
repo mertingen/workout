@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User index{% endblock %}
+
+{% block body %}
+
+    <div class="col-md-7">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">User Add</h3>
+            </div>
+            <!-- /.box-header -->
+            <!-- form start -->
+            <form role="form" id="user-add-form" method="POST" action="{{ path('user_add_post') }}">
+                <div class="box-body">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" class="form-control" id="first-name" name="first-name"
+                               placeholder="Enter first name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" class="form-control" id="last-name" name="last-name"
+                               placeholder="Enter last name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" class="form-control" name="phone"
+                               data-inputmask='"mask": "999-999-9999"' data-mask placeholder="Enter phone number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Order</label>
+                        <select class="form-control" name="gender" required>
+                            <option>Male</option>
+                            <option>Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Birth Day</label>
+                        <input type="text" class="form-control pull-right" id="birth-day" name="birth-day"
+                               autocomplete="off" required>
+                        <!-- /.input group -->
+                    </div>
+                </div>
+                <!-- /.box-body -->
+
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="{{ asset('bower_components/moment/min/moment.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ asset('bower_components/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ asset('bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('plugins/input-mask/jquery.inputmask.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('plugins/input-mask/jquery.inputmask.date.extensions.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('plugins/input-mask/jquery.inputmask.extensions.js') }}"></script>
+    <script type="text/javascript">
+        $(function () {
+
+            $('[data-mask]').inputmask();
+
+            $('#birth-day').datepicker({
+                autoclose: true
+            });
+
+            $("#user-add-form").submit(function (e) {
+
+                //prevent Default functionality
+                e.preventDefault();
+
+                //get the action-url of the form
+                var actionurl = e.currentTarget.action;
+
+                //do your own request an handle the results
+                $.ajax({
+                    url: actionurl,
+                    type: 'post',
+                    dataType: 'json',
+                    data: $("#user-add-form").serialize(),
+                    success: function (data) {
+                        if (data.status) {
+                            iziToast.success({
+                                title: 'OK',
+                                message: data.message
+                            });
+                            window.location = "{{ path('user_list') }}"
+                        } else {
+                            iziToast.error({
+                                title: 'ERROR',
+                                message: data.message
+                            });
+                        }
+                    },
+                    error: function (jqXhr, textStatus, errorMessage) {
+                        iziToast.error({
+                            title: 'ERROR',
+                            message: errorMessage
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
